@@ -7,6 +7,14 @@ package Github;
 
 import ConexionSQL.ConexionSQL;
 import java.sql.Connection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,6 +27,37 @@ public class Prueba extends javax.swing.JFrame {
      */
     public Prueba() {
         initComponents();
+        prueba();
+                
+    }
+    
+    void prueba(){
+        //try {
+            //Obtener fecha actual
+            Calendar fecha = new GregorianCalendar();
+            //int año = fecha.get(Calendar.YEAR);
+            //int mes = fecha.get(Calendar.MONTH)+1;
+            int dia = fecha.get(Calendar.DAY_OF_WEEK)-1;
+            
+            //Calendar c = Calendar.getInstance();
+            //c.set(dia, mes, año);
+            
+            //int diaSemana = c.get(Calendar.DAY_OF_WEEK);
+            
+            System.out.println("Dia: " + dia);
+            /*
+            String inputDateStr = String.format("%s/%s/%s", dia, mes, año);
+            Date inputDate = new SimpleDateFormat("dd/MM/yyyy").parse(inputDateStr);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(inputDate);
+            String dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toUpperCase();
+            System.out.println(dayOfWeek);*/
+            
+            
+            
+        //} catch (ParseException ex) {
+            //Logger.getLogger(Prueba.class.getName()).log(Level.SEVERE, null, ex);
+        //}
     }
 
     /**
