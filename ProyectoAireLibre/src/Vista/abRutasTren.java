@@ -5,6 +5,14 @@
  */
 package Vista;
 
+import ConexionSQL.ConexionSQL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author jamt_
@@ -14,11 +22,81 @@ public class abRutasTren extends javax.swing.JFrame {
     /**
      * Creates new form abRutasTren
      */
+    DefaultTableModel model;
+    
+    
     public abRutasTren() {
         initComponents();
         this.setLocationRelativeTo(null);
+        cargarComboDestino();
     }
 
+    void cargarComboDestino(){
+        String SQL = "SELECT nombreDestino FROM Destino";
+        try {
+            PreparedStatement pst = cn.prepareStatement(SQL);
+            ResultSet rs = pst.executeQuery();
+            cboDestino.addItem("Destino");
+            
+            while(rs.next()){
+                cboDestino.addItem(rs.getString("nombreDestino"));
+            }
+        } catch (Exception e) {
+            System.out.println("Error en combo Destino: " + e);
+        }
+    }
+    
+    void cargarComboRutaTren(){
+        int id = cboDestino.getSelectedIndex();
+        String SQL = "SELECT r.descripcionRT,d.nombreDestino FROM RutaTren r INNER JOIN Destino d ON r.idDestino=d.idDestino WHERE d.idDestino="+id;
+        try {
+            PreparedStatement pst = cn.prepareStatement(SQL);
+            ResultSet rs = pst.executeQuery();
+            cboRutas.removeAllItems();
+            cboRutas.addItem("Ruta");
+                        
+            while(rs.next()){
+                cboRutas.addItem(rs.getString("descripcionRT") + " >> " + rs.getString("nombreDestino"));
+            }
+        } catch (Exception e) {
+            System.out.println("Error en combo Destino: " + e);
+        }
+    }
+    
+    void cargar2(String valor){
+        
+        String mostrar="SELECT v.descripcionRV,v.idRutaVerde,d.nombreDestino FROM RutaVerde v INNER JOIN Destino d ON v.idDestino=d.idDestino WHERE d.nombreDestino LIKE '%"+valor+"%'";
+        String []titulos={"NRO","RUTAS VERDES"};
+        String []Registros=new String[2];
+        model= new DefaultTableModel(null, titulos);
+        String apellido="";
+        try {
+              Statement st = cn.createStatement();
+              ResultSet rs = st.executeQuery(mostrar);
+              while(rs.next())
+              {
+                  Registros[0]= rs.getString("idRutaVerde");
+                  Registros[1]= rs.getString("descripcionRV");
+                  model.addRow(Registros);
+                  
+              }
+              tblBuscarHora.setModel(model);
+        } catch (SQLException ex) {
+            System.out.println("Error en la tabla paciente: " + ex);
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -55,6 +133,11 @@ public class abRutasTren extends javax.swing.JFrame {
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/destino.png"))); // NOI18N
 
         cboDestino.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        cboDestino.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboDestinoActionPerformed(evt);
+            }
+        });
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/tren.png"))); // NOI18N
 
@@ -204,6 +287,11 @@ public class abRutasTren extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnSeleccionarActionPerformed
 
+    private void cboDestinoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboDestinoActionPerformed
+        // TODO add your handling code here:
+        cargarComboRutaTren();
+    }//GEN-LAST:event_cboDestinoActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -253,4 +341,6 @@ public class abRutasTren extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblBuscarHora;
     // End of variables declaration//GEN-END:variables
+ConexionSQL cc = new ConexionSQL();
+Connection cn= ConexionSQL.conexionn();
 }
