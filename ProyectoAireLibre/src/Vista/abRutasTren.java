@@ -135,9 +135,8 @@ public class abRutasTren extends javax.swing.JFrame {
         }
         
         int idCambiarTren = 0;
-        if(Capacidad>=5)
-        {
-            String mostrar="SELECT idTren FROM AsientoTren WHERE idAsientoTren="+idAsientoReserva;
+        
+        String mostrar="SELECT idTren FROM AsientoTren WHERE idAsientoTren="+idAsientoReserva;
 
             try {
                   Statement st = cn.createStatement();
@@ -149,6 +148,9 @@ public class abRutasTren extends javax.swing.JFrame {
             } catch (SQLException ex) {
                 System.out.println("Error en la tabla buscar tren: " + ex);
             }
+            
+        if(Capacidad>=5)
+        {        
             
             String mostrar2="UPDATE Tren SET estadoTren="+2+" WHERE idTren="+idCambiarTren;
             try {
@@ -160,22 +162,10 @@ public class abRutasTren extends javax.swing.JFrame {
 
         }        
         else{
-                        String mostrar="SELECT idTren FROM AsientoTren WHERE idAsientoTren="+idAsientoReserva;
-
-            try {
-                  Statement st = cn.createStatement();
-                  ResultSet rs = st.executeQuery(mostrar);
-                  if(rs.next())
-                  {
-                       idCambiarTren = rs.getInt("idTren");
-                  }
-            } catch (SQLException ex) {
-                System.out.println("Error en la tabla buscar tren: " + ex);
-            }
             
-            String mostrar2="UPDATE Tren SET estadoTren="+1+" WHERE idTren="+idCambiarTren;
+            String mostrar7="UPDATE Tren SET estadoTren="+1+" WHERE idTren="+idCambiarTren;
             try {
-                    PreparedStatement pst = cn.prepareStatement(mostrar2);
+                    PreparedStatement pst = cn.prepareStatement(mostrar7);
                     pst.executeUpdate();
             } catch (SQLException ex) {
                 System.out.println("Error en modificar Tren cambiando estado de tren:: " + ex);
