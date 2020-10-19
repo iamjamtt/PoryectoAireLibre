@@ -6,6 +6,11 @@
 package Vista;
 
 import ConexionSQL.ConexionSQL;
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +18,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -45,6 +52,9 @@ public class adBoletos extends javax.swing.JFrame {
         }
         cargar2();
         cargar3();
+        cargarImagenQR();
+        obtenerIdComprobante();
+        consulta();
     }
     
     void ingresarFechaReserva(){
@@ -113,20 +123,74 @@ public class adBoletos extends javax.swing.JFrame {
     }
     
     void cargar3(){
-        String mostrar="SELECT k.nombrecli,k.apellidoPaterno,k.apellidoMaterno,k.dni FROM Comprobante c INNER JOIN Cliente k ON c.idCliente=k.idCliente WHERE c.idComprobante = (SELECT MAX(c.idComprobante) FROM Comprobante c)";
+        String mostrar="SELECT k.nombreCli,k.apellidoPaterno,k.apellidoMaterno,k.dni FROM Comprobante c INNER JOIN Cliente k ON c.idCliente=k.idCliente WHERE c.idComprobante = (SELECT MAX(c.idComprobante) FROM Comprobante c)";
         
         try {
                 Statement st = cn.createStatement();
                 ResultSet rs = st.executeQuery(mostrar);
                 String NombreCompleto = "";
                 if(rs.next()){
-                    NombreCompleto = rs.getString("nombrecli") + " " + rs.getString("apellidoPaterno") + " " + rs.getString("apellidoMaterno");
+                    NombreCompleto = rs.getString("nombreCli") + " " + rs.getString("apellidoPaterno") + " " + rs.getString("apellidoMaterno");
                     txtNombre.setText(NombreCompleto);
                     txtDni.setText(rs.getString("dni"));
                 }
         } catch (SQLException ex) {
             System.out.println("Error en la tabla mostrar comprobante:: " + ex);
         }
+    }
+    
+    void cargarImagenQR(){
+        try {
+            String ConsultaSQL="UPDATE Comprobante SET imagenComprobante = (SELECT imagenComprobante.* from Openrowset(Bulk 'C:\\QR.png', Single_Blob)as imagenComprobante) where descripcionC = '1'";
+            PreparedStatement pst = cn.prepareStatement(ConsultaSQL);
+            pst.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("ERROR actualizar imagen qr: "+e.getMessage());
+        }
+    }
+    
+    int idCompro;
+    void obtenerIdComprobante(){
+        String ConsultaSQL="SELECT idComprobante FROM Comprobante WHERE idComprobante = (SELECT MAX(idComprobante) FROM Comprobante)"; 
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(ConsultaSQL);
+                while(rs.next())
+                {
+                    idCompro = rs.getInt("idComprobante");
+                }
+              
+              System.out.println("id Comprobante <<>> " + idCompro);
+        } catch (SQLException ex) {
+            System.out.println("Error en obtener id Comprobante: " + ex);
+        }
+    }
+    
+    void consulta(){
+        String sql="select imagenComprobante from Comprobante where idComprobante="+idCompro;
+        SQLServerDataSource dss= new SQLServerDataSource();
+        dss.setServerName("Localhost");
+        dss.setDatabaseName("AireLibre");
+        dss.setUser("sa");
+        dss.setPassword("123");
+        dss.setPortNumber(1433);
+        try {
+            Connection ccc=dss.getConnection();
+            Statement stt= ccc.createStatement();
+            ResultSet rss=stt.executeQuery(sql);
+            while(rss.next()){
+                Blob fotos=rss.getBlob(1);
+                byte []datos=fotos.getBytes(1, (int) fotos.length());
+                BufferedImage img=ImageIO.read(new ByteArrayInputStream(datos));
+               
+                Image images=img.getScaledInstance(txtFoto.getWidth(),txtFoto.getHeight(),Image.SCALE_SMOOTH);
+                txtFoto.setIcon(new ImageIcon(images));
+            }
+        } catch (Exception e) {
+            System.out.println("Error mostrar imagen QR: "+e.getMessage());
+        }
+        
     }
     
     
@@ -151,7 +215,7 @@ public class adBoletos extends javax.swing.JFrame {
         txtNombre = new javax.swing.JLabel();
         txtDni = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
+        txtFoto = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
@@ -187,23 +251,18 @@ public class adBoletos extends javax.swing.JFrame {
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel4.setText("Imagen Aqui...");
-
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(33, Short.MAX_VALUE)
-                .addComponent(jLabel4)
-                .addGap(39, 39, 39))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtFoto, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(66, Short.MAX_VALUE)
-                .addComponent(jLabel4)
-                .addGap(71, 71, 71))
+            .addComponent(txtFoto, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
         );
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -368,7 +427,6 @@ public class adBoletos extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -377,6 +435,7 @@ public class adBoletos extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblBoleto;
     private javax.swing.JLabel txtDni;
+    private javax.swing.JLabel txtFoto;
     private javax.swing.JLabel txtNombre;
     // End of variables declaration//GEN-END:variables
 ConexionSQL cc = new ConexionSQL();
