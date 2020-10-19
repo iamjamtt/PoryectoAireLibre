@@ -74,7 +74,9 @@ public class abRutasTren extends javax.swing.JFrame {
     }
     
     void cargar2(){
-        String mostrar="SELECT * FROM Tren WHERE estadoTren="+1+" AND estadoViaje="+1;
+        //String mostrar="SELECT t.idTren,t.empresa,t.horaSalidaInicio,t.horaLlegadaInicio,t.precioAdicionalTren,a.estadoAT FROM AsientoTren a INNER JOIN Tren t ON a.idTren=t.idTren WHERE a.estadoAT="+1+" AND a.idAsientoTren=(SELECT MAX(a.idAsientoTren) FROM AsientoTren a INNER JOIN Tren t ON a.idTren=t.idTren WHERE t.idTren="+2+")";
+        String mostrar="SELECT DISTINCT t.idTren,t.empresa,t.horaSalidaInicio,t.horaLlegadaInicio,t.precioAdicionalTren,a.estadoAT FROM AsientoTren a INNER JOIN Tren t ON a.idTren=t.idTren WHERE a.estadoAT="+1;
+        
         String []titulos={"NRO","EMPRESA TREN","SALIDA","LLEGADA","PRECIO"};
         String []Registros=new String[5];
         model= new DefaultTableModel(null, titulos);
@@ -88,12 +90,36 @@ public class abRutasTren extends javax.swing.JFrame {
                   Registros[1]= rs.getString("empresa");
                   Registros[2]= rs.getString("horaSalidaInicio");
                   Registros[3]= rs.getString("horaLlegadaInicio");
-                  Registros[4]= rs.getString("precioAdicionalTren");
+                  Registros[4]= "$ " + rs.getString("precioAdicionalTren");
                   model.addRow(Registros); 
               }
               tblBuscarHora.setModel(model);
         } catch (SQLException ex) {
             System.out.println("Error en la tabla buscar tren: " + ex);
+        }
+    }
+    
+    int con=0;
+    void modificarTren(){
+        String mostrar="SELECT * FROM AsientoTren a INNER JOIN Tren t ON a.idTren=t.idTren WHERE a.estadoAT="+2+" AND a.idAsientoTren=(SELECT MAX(a.idAsientoTren) FROM AsientoTren a) AND a.idTren="+5;
+        try {
+              Statement st = cn.createStatement();
+              ResultSet rs = st.executeQuery(mostrar);
+              while(rs.next()){
+                  con++;
+              }
+        } catch (SQLException ex) {
+            System.out.println("Error en modificar Tren: " + ex);
+        }
+        System.out.println("Cont: " + con);
+        if(con==5){
+            String mostrar2="UPDATE Tren SET estadoTren="+2+" WHERE idTren="+idTren;
+            try {
+                    PreparedStatement pst = cn.prepareStatement(mostrar2);
+                    pst.executeUpdate();
+            } catch (SQLException ex) {
+                System.out.println("Error en modificar Tren cambiando estado de tren:: " + ex);
+            }
         }
     }
     
@@ -498,6 +524,7 @@ public class abRutasTren extends javax.swing.JFrame {
     private void btnBuscarTrenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarTrenActionPerformed
         // TODO add your handling code here:
         cargar2();
+        //modificarTren();
     }//GEN-LAST:event_btnBuscarTrenActionPerformed
 
     private void cboRutasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboRutasActionPerformed

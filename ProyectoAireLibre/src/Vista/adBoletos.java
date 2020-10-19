@@ -51,6 +51,7 @@ public class adBoletos extends javax.swing.JFrame {
             ingresarFechaReserva();
         }
         cargar2();
+        cargarBoleta();
         cargar3();
         cargarImagenQR();
         obtenerIdComprobante();
@@ -106,17 +107,32 @@ public class adBoletos extends javax.swing.JFrame {
                 {
                     Registros[0]= rs.getString("idComprobante");
                     Registros[1]= rs.getString("nombrecli");
-                    Registros[2]= rs.getString("pagoComprobante");
+                    Registros[2]= "$ "+rs.getString("pagoComprobante");
                     Registros[3]= rs.getString("fechaComprobante");
                     Registros[4]= rs.getString("horaSalidaTren");
                     Registros[5]= rs.getString("horaLlegadaTren");
                     model.addRow(Registros); 
                 }
                 tblBoleto.setModel(model);
+                
+        } catch (SQLException ex) {
+            System.out.println("Error en la tabla mostrar comprobante:: " + ex);
+        }
+    }
+    
+    void cargarBoleta(){
+        String mostrar="SELECT c.idComprobante,c.pagoComprobante,c.fechaComprobante,c.horaSalidaTren,c.horaLlegadaTren,k.nombrecli,k.dni FROM Comprobante c INNER JOIN Cliente k ON c.idCliente=k.idCliente WHERE c.idComprobante = (SELECT MAX(c.idComprobante) FROM Comprobante c)";
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(mostrar);
+                tblBoleto.setModel(model);
                 if(rs.next()){
-                    txtNombre.setText(rs.getString("nombrecli"));
-                    txtDni.setText(rs.getString("dni"));
+                    //txtNombre.setText(rs.getString("nombrecli"));
+                    //txtDni.setText(rs.getString("dni"));
+                    //txtPrecio.setText(rs.getString("dni"));
                 }
+                
         } catch (SQLException ex) {
             System.out.println("Error en la tabla mostrar comprobante:: " + ex);
         }
@@ -131,8 +147,8 @@ public class adBoletos extends javax.swing.JFrame {
                 String NombreCompleto = "";
                 if(rs.next()){
                     NombreCompleto = rs.getString("nombreCli") + " " + rs.getString("apellidoPaterno") + " " + rs.getString("apellidoMaterno");
-                    txtNombre.setText(NombreCompleto);
-                    txtDni.setText(rs.getString("dni"));
+                    txtNombreCliente.setText(NombreCompleto);
+                    txtDniCliente.setText(rs.getString("dni"));
                 }
         } catch (SQLException ex) {
             System.out.println("Error en la tabla mostrar comprobante:: " + ex);
@@ -212,11 +228,12 @@ public class adBoletos extends javax.swing.JFrame {
         tblBoleto = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        txtNombre = new javax.swing.JLabel();
-        txtDni = new javax.swing.JLabel();
+        txtNombreCliente = new javax.swing.JLabel();
+        txtDniCliente = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         txtFoto = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        txtPrecio = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -245,9 +262,9 @@ public class adBoletos extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 30)); // NOI18N
         jLabel1.setText("BOLETO");
 
-        txtNombre.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        txtNombreCliente.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
-        txtDni.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        txtDniCliente.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -255,10 +272,7 @@ public class adBoletos extends javax.swing.JFrame {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(txtFoto, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(txtFoto, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -266,31 +280,36 @@ public class adBoletos extends javax.swing.JFrame {
         );
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel5.setText("Derechos Reservados - PeruRail");
+        jLabel5.setText("Precio:");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap(18, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(26, 26, 26))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(8, 8, 8)))
-                        .addGap(38, 38, 38))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(57, 57, 57))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(0, 21, Short.MAX_VALUE)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(26, 26, 26))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(txtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addGap(8, 8, 8)))
+                                .addGap(38, 38, 38))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(txtDniCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(57, 57, 57))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel5)
-                        .addGap(14, 14, 14))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -298,13 +317,15 @@ public class adBoletos extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtDniCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
 
@@ -383,6 +404,9 @@ public class adBoletos extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         
+        abRutasTren.horaSalida = null;
+        System.out.println("HoraSalidaPrueba >> " + abRutasTren.horaSalida);
+        
         
         aaPrincipal principal = new aaPrincipal();
         principal.setVisible(true);
@@ -434,9 +458,10 @@ public class adBoletos extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblBoleto;
-    private javax.swing.JLabel txtDni;
+    private javax.swing.JLabel txtDniCliente;
     private javax.swing.JLabel txtFoto;
-    private javax.swing.JLabel txtNombre;
+    private javax.swing.JLabel txtNombreCliente;
+    private javax.swing.JLabel txtPrecio;
     // End of variables declaration//GEN-END:variables
 ConexionSQL cc = new ConexionSQL();
 Connection cn= ConexionSQL.conexionn();
