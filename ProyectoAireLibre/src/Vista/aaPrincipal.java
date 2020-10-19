@@ -39,7 +39,7 @@ public class aaPrincipal extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(732, 700));
         getContentPane().setLayout(null);
 
-        btnRutaTren.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        btnRutaTren.setFont(new java.awt.Font("PMingLiU-ExtB", 1, 18)); // NOI18N
         btnRutaTren.setText("RUTA TREN");
         btnRutaTren.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -47,9 +47,9 @@ public class aaPrincipal extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnRutaTren);
-        btnRutaTren.setBounds(210, 460, 150, 40);
+        btnRutaTren.setBounds(200, 470, 150, 40);
 
-        btnRutasVerdes.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        btnRutasVerdes.setFont(new java.awt.Font("PMingLiU-ExtB", 1, 18)); // NOI18N
         btnRutasVerdes.setText("RUTAS VERDES");
         btnRutasVerdes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -57,7 +57,7 @@ public class aaPrincipal extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnRutasVerdes);
-        btnRutasVerdes.setBounds(380, 460, 150, 40);
+        btnRutasVerdes.setBounds(380, 470, 170, 40);
 
         jLabel2.setBackground(new java.awt.Color(0, 0, 0));
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
@@ -74,7 +74,7 @@ public class aaPrincipal extends javax.swing.JFrame {
             }
         });
         getContentPane().add(jButton1);
-        jButton1.setBounds(210, 510, 150, 30);
+        jButton1.setBounds(290, 530, 150, 30);
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/FondoMachuPicchu (1).jpg"))); // NOI18N
         getContentPane().add(jLabel1);

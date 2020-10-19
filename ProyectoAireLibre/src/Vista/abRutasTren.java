@@ -99,6 +99,114 @@ public class abRutasTren extends javax.swing.JFrame {
         }
     }
     
+    int Capacidad = 0;
+    int idAsientoReserva = 0;
+    String fechaReser = "";
+    
+    void CargarVisualizarTren(){
+             
+        String listReserva="SELECT * FROM FechaReserva";
+        
+        int anio = dateFechaSalida.getCalendar().get(Calendar.YEAR);
+        int dia = dateFechaSalida.getCalendar().get(Calendar.DAY_OF_MONTH);
+        int mes = dateFechaSalida.getCalendar().get(Calendar.MARCH)+1;
+        String fecha = anio+"-"+mes+"-"+dia+" 00:00:00.0";
+        
+        int idRtren = cboRutas.getSelectedIndex();
+
+        try {
+              Statement st = cn.createStatement();
+              ResultSet rs = st.executeQuery(listReserva);
+              while(rs.next())
+              {
+                  System.out.println(rs.getString("fechaReserva")+"fwcha I: "+fecha);
+                  System.out.println(rs.getInt("idRutaTren"));
+                  if(fecha.equalsIgnoreCase(rs.getString("fechaReserva")) && idRtren == rs.getInt("idRutaTren")){
+                      Capacidad++;
+                      
+                  }
+                  fechaReser = rs.getString("fechaReserva");
+                  idAsientoReserva = rs.getInt("idAsientoTren");
+              }
+              System.out.println("lleno: "+Capacidad);
+              System.out.println(fechaReser+" -> ahora "+fecha);
+        } catch (SQLException ex) {
+            System.out.println("Error en validar tren: " + ex);
+        }
+        
+        int idCambiarTren = 0;
+        if(Capacidad>=5)
+        {
+            String mostrar="SELECT idTren FROM AsientoTren WHERE idAsientoTren="+idAsientoReserva;
+
+            try {
+                  Statement st = cn.createStatement();
+                  ResultSet rs = st.executeQuery(mostrar);
+                  if(rs.next())
+                  {
+                       idCambiarTren = rs.getInt("idTren");
+                  }
+            } catch (SQLException ex) {
+                System.out.println("Error en la tabla buscar tren: " + ex);
+            }
+            
+            String mostrar2="UPDATE Tren SET estadoTren="+2+" WHERE idTren="+idCambiarTren;
+            try {
+                    PreparedStatement pst = cn.prepareStatement(mostrar2);
+                    pst.executeUpdate();
+            } catch (SQLException ex) {
+                System.out.println("Error en modificar Tren cambiando estado de tren:: " + ex);
+            }
+
+        }        
+        else{
+                        String mostrar="SELECT idTren FROM AsientoTren WHERE idAsientoTren="+idAsientoReserva;
+
+            try {
+                  Statement st = cn.createStatement();
+                  ResultSet rs = st.executeQuery(mostrar);
+                  if(rs.next())
+                  {
+                       idCambiarTren = rs.getInt("idTren");
+                  }
+            } catch (SQLException ex) {
+                System.out.println("Error en la tabla buscar tren: " + ex);
+            }
+            
+            String mostrar2="UPDATE Tren SET estadoTren="+1+" WHERE idTren="+idCambiarTren;
+            try {
+                    PreparedStatement pst = cn.prepareStatement(mostrar2);
+                    pst.executeUpdate();
+            } catch (SQLException ex) {
+                System.out.println("Error en modificar Tren cambiando estado de tren:: " + ex);
+            }           
+           
+        }
+        
+        String mostrarTodo="SELECT idTren, empresa, horaSalidaInicio, horaLlegadaInicio, precioAdicionalTren FROM Tren WHERE estadoTren="+1;
+        
+        String []titulos={"NRO","EMPRESA TREN","SALIDA","LLEGADA","PRECIO"};
+        String []Registros=new String[5];
+        model= new DefaultTableModel(null, titulos);
+        
+        try {
+              Statement st = cn.createStatement();
+              ResultSet rs = st.executeQuery(mostrarTodo);
+              while(rs.next())
+              {
+                  Registros[0]= rs.getString("idTren");
+                  Registros[1]= rs.getString("empresa");
+                  Registros[2]= rs.getString("horaSalidaInicio");
+                  Registros[3]= rs.getString("horaLlegadaInicio");
+                  Registros[4]= "$ " + rs.getString("precioAdicionalTren");
+                  model.addRow(Registros); 
+              }
+              tblBuscarHora.setModel(model);
+        } catch (SQLException ex) {
+            System.out.println("Error en la tabla buscar tren: " + ex);
+        }
+    }
+    
     int con=0;
     void modificarTren(){
         String mostrar="SELECT * FROM AsientoTren a INNER JOIN Tren t ON a.idTren=t.idTren WHERE a.estadoAT="+2+" AND a.idAsientoTren=(SELECT MAX(a.idAsientoTren) FROM AsientoTren a) AND a.idTren="+5;
@@ -364,7 +472,7 @@ public class abRutasTren extends javax.swing.JFrame {
         dateFechaSalida.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         btnBuscarTren.setBackground(new java.awt.Color(255, 204, 0));
-        btnBuscarTren.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnBuscarTren.setFont(new java.awt.Font("PMingLiU-ExtB", 1, 14)); // NOI18N
         btnBuscarTren.setText("BUSCAR TREN");
         btnBuscarTren.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -451,7 +559,7 @@ public class abRutasTren extends javax.swing.JFrame {
         jScrollPane1.setViewportView(tblBuscarHora);
 
         btnSeleccionar.setBackground(new java.awt.Color(255, 204, 0));
-        btnSeleccionar.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnSeleccionar.setFont(new java.awt.Font("PMingLiU-ExtB", 1, 14)); // NOI18N
         btnSeleccionar.setText("SELECCIONAR");
         btnSeleccionar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -482,12 +590,11 @@ public class abRutasTren extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnSeleccionar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnSeleccionar, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -523,7 +630,9 @@ public class abRutasTren extends javax.swing.JFrame {
 
     private void btnBuscarTrenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarTrenActionPerformed
         // TODO add your handling code here:
-        cargar2();
+        //cargar2();
+        CargarVisualizarTren();
+        
         //modificarTren();
     }//GEN-LAST:event_btnBuscarTrenActionPerformed
 
