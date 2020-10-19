@@ -39,9 +39,30 @@ public class acDatosPasajero extends javax.swing.JFrame {
         cboSexo.addItem("M");
         cboSexo.addItem("F");
     }
+    
+    boolean vr = false;
+    boolean valida(){
+        if(txtDNI.getText().equals("") || txtNombre.getText().equals("") || txtApeMaterno.getText().equals("") || txtApeMaterno.getText().equals("")){
+            return false;
+        }
+        if( txtDNI.getText().length()<8){
+            vr = true;
+            return false;
+        }
+        return true;
+    }
 
     void ingresarCliente(){
-        String sql = "INSERT INTO Cliente (nombreCli,apellidoPaterno,apellidoMaterno,dni,sexoCliente) VALUES (?,?,?,?,?)";
+        if (!valida()){
+            if(vr==true){
+                JOptionPane.showMessageDialog(null, "Campo de DNI imcompleto");
+            }else{
+                JOptionPane.showMessageDialog(null, "Falta ingresar campos.");
+            }
+            
+        }
+        else{
+            String sql = "INSERT INTO Cliente (nombreCli,apellidoPaterno,apellidoMaterno,dni,sexoCliente) VALUES (?,?,?,?,?)";
             try {
                 PreparedStatement pst  = cn.prepareStatement(sql);
                 
@@ -59,6 +80,13 @@ public class acDatosPasajero extends javax.swing.JFrame {
             } catch (SQLException ex) {
                 System.out.println("Error al ingresar datos Cliente: " + ex);
             }
+            
+            obtenerFechaReserva();
+            
+            adBoletos bol = new adBoletos();
+            bol.setVisible(true);
+            this.dispose();
+        }
     }
     
     void obtenerFechaReserva(){
@@ -266,13 +294,7 @@ public class acDatosPasajero extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         ingresarCliente();
-        obtenerFechaReserva();
         
-        
-        
-        adBoletos bol = new adBoletos();
-        bol.setVisible(true);
-        this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtDNIKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDNIKeyTyped
