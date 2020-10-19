@@ -31,10 +31,14 @@ public class aeRutasVerdes extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         informeMetereologico();
+        datosDiaSiguiente();
+        datosDiaSiguiente2();
         //cargar2("");
     }
     
     int diaaa;
+    int diasig;
+    int diasig2;
     
     void informeMetereologico(){
         try {
@@ -64,10 +68,10 @@ public class aeRutasVerdes extends javax.swing.JFrame {
             }
             System.out.println("Dia: " + dia + " " + diaaa);
             String ConsultaSQL="SELECT * FROM DiaTiempo WHERE idDiaTiempo ="+diaaa;
-
+          
             Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery(ConsultaSQL);                    
-
+            ResultSet rs = st.executeQuery(ConsultaSQL);   
+          
             if(rs.next()){
                 txtGrado.setText(rs.getString("tiempo"));
                 txtMax.setText(rs.getString("tiempoMax"));
@@ -76,6 +80,94 @@ public class aeRutasVerdes extends javax.swing.JFrame {
 
         } catch (Exception e) {
             System.out.println("ERROR seleccionar datos: "+e.getMessage());
+        }
+    }
+    
+    void datosDiaSiguiente(){
+        try {
+            diasig=diaaa+1;
+            if(diasig==7){
+                diasig=0;
+            }
+            String diasemana="";
+            if(diasig==0){
+                diasemana="Domingo: ";
+            }
+            if(diasig==1){
+                diasemana="Lunes: ";
+            }
+            if(diasig==2){
+               diasemana="Martes: ";
+            }
+            if(diasig==3){
+                diasemana="Miercoles: ";
+            }
+            if(diasig==4){
+                diasemana="Jueves: ";
+            }
+            if(diasig==5){
+                diasemana="Viernes: ";
+            }
+            if(diasig==6){
+                diasemana="Sabado: ";
+            }
+            System.out.println("Dia Sig: " + diasemana);
+            String ConsultaSQL2="SELECT * FROM DiaTiempo WHERE idDiaTiempo ="+diasig;
+            
+            Statement st = cn.createStatement();
+            ResultSet rs = st.executeQuery(ConsultaSQL2);
+            
+            txtDiaSig.setText(diasemana);
+
+            if(rs.next()){
+                txtClimaSig.setText(rs.getString("tiempo") + " C");
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR mostrar dia siguiente: "+e.getMessage());
+        }
+    }
+    
+    void datosDiaSiguiente2(){
+        try {
+            diasig2=diasig+1;
+            if(diasig2==7){
+                diasig=0;
+            }
+            String diasemana="";
+            if(diasig2==0){
+                diasemana="Domingo: ";
+            }
+            if(diasig2==1){
+                diasemana="Lunes: ";
+            }
+            if(diasig2==2){
+               diasemana="Martes: ";
+            }
+            if(diasig2==3){
+                diasemana="Miercoles: ";
+            }
+            if(diasig2==4){
+                diasemana="Jueves: ";
+            }
+            if(diasig2==5){
+                diasemana="Viernes: ";
+            }
+            if(diasig2==6){
+                diasemana="Sabado: ";
+            }
+            System.out.println("Dia Sig: " + diasemana);
+            String ConsultaSQL3="SELECT * FROM DiaTiempo WHERE idDiaTiempo ="+diasig2;
+            
+            Statement st = cn.createStatement();
+            ResultSet rs = st.executeQuery(ConsultaSQL3);
+            
+            txtDiaSig1.setText(diasemana);
+
+            if(rs.next()){
+                txtClimaSig1.setText(rs.getString("tiempo") + " C");
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR mostrar dia siguiente: "+e.getMessage());
         }
     }
     
@@ -133,6 +225,10 @@ public class aeRutasVerdes extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         txtMax = new javax.swing.JLabel();
+        txtDiaSig = new javax.swing.JLabel();
+        txtClimaSig = new javax.swing.JLabel();
+        txtDiaSig1 = new javax.swing.JLabel();
+        txtClimaSig1 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -273,9 +369,9 @@ public class aeRutasVerdes extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(txtMax, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtMax, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
@@ -283,26 +379,43 @@ public class aeRutasVerdes extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        txtDiaSig.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        txtClimaSig.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        txtDiaSig1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        txtClimaSig1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(7, 7, 7)
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel3Layout.createSequentialGroup()
-                                        .addComponent(txtGrado, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel4)))))
-                        .addGap(9, 9, 9))
-                    .addComponent(jLabel2))
+                        .addComponent(txtDiaSig1, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtClimaSig1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel3)
+                                .addGroup(jPanel3Layout.createSequentialGroup()
+                                    .addGap(7, 7, 7)
+                                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(jPanel3Layout.createSequentialGroup()
+                                            .addComponent(txtGrado, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(jLabel4)))))
+                            .addGap(9, 9, 9))
+                        .addComponent(jLabel2))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(txtDiaSig, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtClimaSig, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -318,7 +431,15 @@ public class aeRutasVerdes extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addGap(29, 29, 29)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtClimaSig, javax.swing.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
+                    .addComponent(txtDiaSig, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtClimaSig1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txtDiaSig1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
 
         jButton2.setBackground(new java.awt.Color(255, 102, 102));
@@ -462,7 +583,11 @@ public class aeRutasVerdes extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblRutasVerdes;
+    private javax.swing.JLabel txtClimaSig;
+    private javax.swing.JLabel txtClimaSig1;
     private javax.swing.JTextField txtDestino;
+    private javax.swing.JLabel txtDiaSig;
+    private javax.swing.JLabel txtDiaSig1;
     private javax.swing.JLabel txtGrado;
     private javax.swing.JLabel txtMax;
     private javax.swing.JLabel txtMin;
