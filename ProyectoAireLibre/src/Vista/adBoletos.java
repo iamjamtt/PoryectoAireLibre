@@ -42,7 +42,7 @@ public class adBoletos extends javax.swing.JFrame {
         System.out.println("idFechaReserva >> " + abRutasTren.idFR);
         System.out.println("idCliente >> " + acDatosPasajero.indCli);
         System.out.println("FechaSalida >> " + abRutasTren.fechaSalida);
-        System.out.println("FechaLlegada >> " + abRutasTren.horaLlegada);
+        System.out.println("HoraLlegada >> " + abRutasTren.horaLlegada);
         System.out.println("HoraSalida >> " + abRutasTren.horaSalida);
         System.out.println("PrecioTotal >> " + abRutasTren.precioTotal);
         if(abRutasTren.horaSalida==null){
@@ -51,7 +51,6 @@ public class adBoletos extends javax.swing.JFrame {
             ingresarFechaReserva();
         }
         cargar2();
-        cargarBoleta();
         cargar3();
         cargarImagenQR();
         obtenerIdComprobante();
@@ -120,26 +119,8 @@ public class adBoletos extends javax.swing.JFrame {
         }
     }
     
-    void cargarBoleta(){
-        String mostrar="SELECT c.idComprobante,c.pagoComprobante,c.fechaComprobante,c.horaSalidaTren,c.horaLlegadaTren,k.nombrecli,k.dni FROM Comprobante c INNER JOIN Cliente k ON c.idCliente=k.idCliente WHERE c.idComprobante = (SELECT MAX(c.idComprobante) FROM Comprobante c)";
-        
-        try {
-                Statement st = cn.createStatement();
-                ResultSet rs = st.executeQuery(mostrar);
-                tblBoleto.setModel(model);
-                if(rs.next()){
-                    //txtNombre.setText(rs.getString("nombrecli"));
-                    //txtDni.setText(rs.getString("dni"));
-                    //txtPrecio.setText(rs.getString("dni"));
-                }
-                
-        } catch (SQLException ex) {
-            System.out.println("Error en la tabla mostrar comprobante:: " + ex);
-        }
-    }
-    
     void cargar3(){
-        String mostrar="SELECT k.nombreCli,k.apellidoPaterno,k.apellidoMaterno,k.dni FROM Comprobante c INNER JOIN Cliente k ON c.idCliente=k.idCliente WHERE c.idComprobante = (SELECT MAX(c.idComprobante) FROM Comprobante c)";
+        String mostrar="SELECT k.nombreCli,k.apellidoPaterno,k.apellidoMaterno,k.dni,c.pagoComprobante,c.horaSalidaTren FROM Comprobante c INNER JOIN Cliente k ON c.idCliente=k.idCliente WHERE c.idComprobante = (SELECT MAX(c.idComprobante) FROM Comprobante c)";
         
         try {
                 Statement st = cn.createStatement();
@@ -149,6 +130,8 @@ public class adBoletos extends javax.swing.JFrame {
                     NombreCompleto = rs.getString("nombreCli") + " " + rs.getString("apellidoPaterno") + " " + rs.getString("apellidoMaterno");
                     txtNombreCliente.setText(NombreCompleto);
                     txtDniCliente.setText(rs.getString("dni"));
+                    txtPrecio.setText("$ "+rs.getString("pagoComprobante"));
+                    txtFechaSalida.setText(rs.getString("horaSalidaTren"));
                 }
         } catch (SQLException ex) {
             System.out.println("Error en la tabla mostrar comprobante:: " + ex);
@@ -234,6 +217,8 @@ public class adBoletos extends javax.swing.JFrame {
         txtFoto = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         txtPrecio = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        txtFechaSalida = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -264,7 +249,7 @@ public class adBoletos extends javax.swing.JFrame {
 
         txtNombreCliente.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
-        txtDniCliente.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        txtDniCliente.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -279,54 +264,68 @@ public class adBoletos extends javax.swing.JFrame {
             .addComponent(txtFoto, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
         );
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel5.setText("Precio:");
+
+        txtPrecio.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel6.setText("Hora de Salida:");
+
+        txtFechaSalida.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(txtDniCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(57, 57, 57))
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(0, 21, Short.MAX_VALUE)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(26, 26, 26))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(txtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel3Layout.createSequentialGroup()
-                                        .addComponent(jLabel1)
-                                        .addGap(8, 8, 8)))
-                                .addGap(38, 38, 38))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addComponent(txtDniCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(57, 57, 57))))
+                        .addGap(46, 46, 46)
+                        .addComponent(jLabel1))
                     .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addComponent(txtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(42, 42, 42)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtFechaSalida, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(13, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(24, 24, 24)
+                .addGap(12, 12, 12)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtNombreCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtDniCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(24, Short.MAX_VALUE))
+                    .addComponent(jLabel5)
+                    .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(txtFechaSalida, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         jButton1.setBackground(new java.awt.Color(255, 102, 102));
@@ -360,7 +359,7 @@ public class adBoletos extends javax.swing.JFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)))
+                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -452,6 +451,7 @@ public class adBoletos extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -459,6 +459,7 @@ public class adBoletos extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblBoleto;
     private javax.swing.JLabel txtDniCliente;
+    private javax.swing.JLabel txtFechaSalida;
     private javax.swing.JLabel txtFoto;
     private javax.swing.JLabel txtNombreCliente;
     private javax.swing.JLabel txtPrecio;

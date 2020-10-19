@@ -133,6 +133,11 @@ public class acDatosPasajero extends javax.swing.JFrame {
         txtApeMaterno.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         txtDNI.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        txtDNI.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtDNIKeyTyped(evt);
+            }
+        });
 
         cboSexo.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
@@ -269,6 +274,14 @@ public class acDatosPasajero extends javax.swing.JFrame {
         bol.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void txtDNIKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDNIKeyTyped
+        // TODO add your handling code here:
+        char c = evt.getKeyChar();
+        
+        if(c<'0' || c>'9') evt.consume();
+        if (txtDNI.getText().length()== 8) evt.consume(); 
+    }//GEN-LAST:event_txtDNIKeyTyped
 
     /**
      * @param args the command line arguments
