@@ -5,6 +5,17 @@
  */
 package Vista;
 
+import ConexionSQL.ConexionSQL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author jamt_
@@ -14,10 +25,112 @@ public class adBoletos extends javax.swing.JFrame {
     /**
      * Creates new form adBoletos
      */
+    DefaultTableModel model;
+    
+    
+    
     public adBoletos() {
         initComponents();
         this.setLocationRelativeTo(null);
+        System.out.println("idFechaReserva >> " + abRutasTren.idFR);
+        System.out.println("idCliente >> " + acDatosPasajero.indCli);
+        System.out.println("FechaSalida >> " + abRutasTren.fechaSalida);
+        System.out.println("FechaLlegada >> " + abRutasTren.horaLlegada);
+        System.out.println("HoraSalida >> " + abRutasTren.horaSalida);
+        System.out.println("PrecioTotal >> " + abRutasTren.precioTotal);
+        if(abRutasTren.fechaSalida==null){
+            System.out.println("Hola");
+        }else{
+            ingresarFechaReserva();
+        }
+        cargar2();
+        cargar3();
     }
+    
+    void ingresarFechaReserva(){
+        String sql = "INSERT INTO Comprobante (pagoComprobante,fechaComprobante,horaSalidaTren,horaLlegadaTren,descripcionC,idFechaReserva,idCliente) VALUES (?,?,?,?,?,?,?)";
+            try {
+                PreparedStatement pst  = cn.prepareStatement(sql);
+                
+                pst.setString(1, ""+abRutasTren.precioTotal);
+                
+                Calendar fecha = new GregorianCalendar();
+                int anio = fecha.get(Calendar.YEAR);
+                int mes = fecha.get(Calendar.MONTH);
+                int dia = fecha.get(Calendar.DAY_OF_MONTH);
+                int hora = fecha.get(Calendar.HOUR_OF_DAY);
+                int minuto = fecha.get(Calendar.MINUTE);
+                int segundo = fecha.get(Calendar.SECOND);
+                
+                
+                System.out.println("Fecha Actual: " + dia + "/" + (mes+1) + "/" + anio);
+                System.out.printf("Hora Actual: %02d:%02d:%02d %n", hora, minuto, segundo);
+                String fechaActual = anio + "-" + (mes+1) + "-" + dia;
+                
+                pst.setString(2, fechaActual);
+                pst.setString(3, ""+abRutasTren.horaSalida);
+                pst.setString(4, ""+abRutasTren.horaLlegada);
+                pst.setString(5, "1");
+                pst.setString(6, ""+abRutasTren.idFR);
+                pst.setString(7, ""+acDatosPasajero.indCli);
+
+                int n=pst.executeUpdate();
+                if(n>0){
+                JOptionPane.showMessageDialog(null, "Registro Guardado con Exito");
+                }
+            } catch (SQLException ex) {
+                System.out.println("Error al ingresar datos Comprobante: " + ex);
+            }
+    }
+    
+    void cargar2(){
+        String mostrar="SELECT c.idComprobante,c.pagoComprobante,c.fechaComprobante,c.horaSalidaTren,c.horaLlegadaTren,k.nombrecli,k.dni FROM Comprobante c INNER JOIN Cliente k ON c.idCliente=k.idCliente WHERE c.idComprobante = (SELECT MAX(c.idComprobante) FROM Comprobante c)";
+        String []titulos={"NRO","CLIENTE","PAGO","FECHA","HORA SALIDA","HORA LLEGADA"};
+        String []Registros=new String[6];
+        model= new DefaultTableModel(null, titulos);
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(mostrar);
+                while(rs.next())
+                {
+                    Registros[0]= rs.getString("idComprobante");
+                    Registros[1]= rs.getString("nombrecli");
+                    Registros[2]= rs.getString("pagoComprobante");
+                    Registros[3]= rs.getString("fechaComprobante");
+                    Registros[4]= rs.getString("horaSalidaTren");
+                    Registros[5]= rs.getString("horaLlegadaTren");
+                    model.addRow(Registros); 
+                }
+                tblBoleto.setModel(model);
+                if(rs.next()){
+                    txtNombre.setText(rs.getString("nombrecli"));
+                    txtDni.setText(rs.getString("dni"));
+                }
+        } catch (SQLException ex) {
+            System.out.println("Error en la tabla mostrar comprobante:: " + ex);
+        }
+    }
+    
+    void cargar3(){
+        String mostrar="SELECT k.nombrecli,k.apellidoPaterno,k.apellidoMaterno,k.dni FROM Comprobante c INNER JOIN Cliente k ON c.idCliente=k.idCliente WHERE c.idComprobante = (SELECT MAX(c.idComprobante) FROM Comprobante c)";
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(mostrar);
+                String NombreCompleto="";
+                if(rs.next()){
+                    txtNombre.setText(rs.getString("nombrecli"));
+                    txtDni.setText(rs.getString("dni"));
+                }
+        } catch (SQLException ex) {
+            System.out.println("Error en la tabla mostrar comprobante:: " + ex);
+        }
+    }
+    
+    
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -31,11 +144,11 @@ public class adBoletos extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblBoleto = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        txtNombre = new javax.swing.JLabel();
+        txtDni = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -48,8 +161,8 @@ public class adBoletos extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Boletos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
 
-        jTable1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblBoleto.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        tblBoleto.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -60,18 +173,16 @@ public class adBoletos extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tblBoleto);
 
         jPanel3.setBackground(new java.awt.Color(204, 204, 204));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 30)); // NOI18N
         jLabel1.setText("BOLETO");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel2.setText("Nombre Completo Aqui...");
+        txtNombre.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel3.setText("DNI Aqui...");
+        txtDni.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -101,37 +212,34 @@ public class adBoletos extends javax.swing.JFrame {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(35, 35, 35)
-                        .addComponent(jLabel2))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(77, 77, 77)
-                        .addComponent(jLabel3)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addGap(0, 32, Short.MAX_VALUE)
+                .addGap(32, 32, 32)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                            .addComponent(jLabel1)
-                            .addGap(57, 57, 57))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                             .addComponent(jLabel5)
-                            .addGap(26, 26, 26)))))
+                            .addGap(26, 26, 26))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel1))
+                            .addGap(57, 57, 57)))))
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(77, 77, 77)
+                .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -257,8 +365,6 @@ public class adBoletos extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
@@ -266,6 +372,10 @@ public class adBoletos extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable tblBoleto;
+    private javax.swing.JLabel txtDni;
+    private javax.swing.JLabel txtNombre;
     // End of variables declaration//GEN-END:variables
+ConexionSQL cc = new ConexionSQL();
+Connection cn= ConexionSQL.conexionn();
 }

@@ -5,6 +5,16 @@
  */
 package Vista;
 
+import ConexionSQL.ConexionSQL;
+import static Vista.abRutasTren.idFR;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Calendar;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author jamt_
@@ -14,11 +24,64 @@ public class acDatosPasajero extends javax.swing.JFrame {
     /**
      * Creates new form acDatosPasajero
      */
+    
+    public static int indCli;
+    
     public acDatosPasajero() {
         initComponents();
         this.setLocationRelativeTo(null);
+        cargarComboSexo();
+        System.out.println("idFechaReserva >> " + abRutasTren.idFR);
+    }
+    
+    void cargarComboSexo(){
+        cboSexo.addItem("Seleccione una opcion");
+        cboSexo.addItem("M");
+        cboSexo.addItem("F");
     }
 
+    void ingresarCliente(){
+        String sql = "INSERT INTO Cliente (nombreCli,apellidoPaterno,apellidoMaterno,dni,sexoCliente) VALUES (?,?,?,?,?)";
+            try {
+                PreparedStatement pst  = cn.prepareStatement(sql);
+                
+                pst.setString(1, txtNombre.getText());
+                pst.setString(2, txtApePaterno.getText());
+                pst.setString(3, txtApeMaterno.getText());
+                pst.setString(4, txtDNI.getText());
+                pst.setString(5, cboSexo.getSelectedItem().toString());
+                
+
+                int n=pst.executeUpdate();
+                if(n>0){
+                JOptionPane.showMessageDialog(null, "Registro Guardado con Exito");
+                }
+            } catch (SQLException ex) {
+                System.out.println("Error al ingresar datos Cliente: " + ex);
+            }
+    }
+    
+    void obtenerFechaReserva(){
+        String ConsultaSQL="SELECT idCliente FROM Cliente WHERE idCliente = (SELECT MAX(idCliente) FROM Cliente)"; 
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(ConsultaSQL);
+
+                while(rs.next())
+                {
+                    indCli = rs.getInt("idCliente");
+                }
+
+                System.out.println("id Cliente <<>> " + indCli);
+        } catch (SQLException ex) {
+            System.out.println("Error en obtener id Cliente: " + ex);
+        }
+    }
+    
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -193,7 +256,8 @@ public class acDatosPasajero extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        
+        ingresarCliente();
+        obtenerFechaReserva();
         
         
         
@@ -253,4 +317,6 @@ public class acDatosPasajero extends javax.swing.JFrame {
     private javax.swing.JTextField txtDNI;
     private javax.swing.JTextField txtNombre;
     // End of variables declaration//GEN-END:variables
+ConexionSQL cc = new ConexionSQL();
+Connection cn= ConexionSQL.conexionn();
 }

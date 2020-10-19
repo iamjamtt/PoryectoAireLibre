@@ -11,6 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -23,6 +25,12 @@ public class abRutasTren extends javax.swing.JFrame {
      * Creates new form abRutasTren
      */
     DefaultTableModel model;
+    public static int idFR;
+    public static String horaLlegada = null;
+    public static String horaSalida = null;
+    public static String fechaSalida = null;
+    public static double precioTotal;
+    int idAsiento;
     
     
     public abRutasTren() {
@@ -46,9 +54,11 @@ public class abRutasTren extends javax.swing.JFrame {
         }
     }
     
+    int idDestino;
+    
     void cargarComboRutaTren(){
-        int id = cboDestino.getSelectedIndex();
-        String SQL = "SELECT r.descripcionRT,d.nombreDestino FROM RutaTren r INNER JOIN Destino d ON r.idDestino=d.idDestino WHERE d.idDestino="+id;
+        idDestino = cboDestino.getSelectedIndex();
+        String SQL = "SELECT r.descripcionRT,d.nombreDestino FROM RutaTren r INNER JOIN Destino d ON r.idDestino=d.idDestino WHERE d.idDestino="+idDestino;
         try {
             PreparedStatement pst = cn.prepareStatement(SQL);
             ResultSet rs = pst.executeQuery();
@@ -63,26 +73,203 @@ public class abRutasTren extends javax.swing.JFrame {
         }
     }
     
-    void cargar2(String valor){
-        
-        String mostrar="SELECT v.descripcionRV,v.idRutaVerde,d.nombreDestino FROM RutaVerde v INNER JOIN Destino d ON v.idDestino=d.idDestino WHERE d.nombreDestino LIKE '%"+valor+"%'";
-        String []titulos={"NRO","RUTAS VERDES"};
-        String []Registros=new String[2];
+    void cargar2(){
+        String mostrar="SELECT * FROM Tren WHERE estadoTren="+1+" AND estadoViaje="+1;
+        String []titulos={"NRO","EMPRESA TREN","SALIDA","LLEGADA","PRECIO"};
+        String []Registros=new String[5];
         model= new DefaultTableModel(null, titulos);
-        String apellido="";
+        
         try {
               Statement st = cn.createStatement();
               ResultSet rs = st.executeQuery(mostrar);
               while(rs.next())
               {
-                  Registros[0]= rs.getString("idRutaVerde");
-                  Registros[1]= rs.getString("descripcionRV");
-                  model.addRow(Registros);
-                  
+                  Registros[0]= rs.getString("idTren");
+                  Registros[1]= rs.getString("empresa");
+                  Registros[2]= rs.getString("horaSalidaInicio");
+                  Registros[3]= rs.getString("horaLlegadaInicio");
+                  Registros[4]= rs.getString("precioAdicionalTren");
+                  model.addRow(Registros); 
               }
               tblBuscarHora.setModel(model);
         } catch (SQLException ex) {
-            System.out.println("Error en la tabla paciente: " + ex);
+            System.out.println("Error en la tabla buscar tren: " + ex);
+        }
+    }
+    
+    int idTren;
+    
+    void obtenerAsientoTren(){
+        idTren=Integer.parseInt((String) tblBuscarHora.getValueAt(tblBuscarHora.getSelectedRow(),0));
+        
+        String ConsultaSQL="SELECT idAsientoTren FROM AsientoTren WHERE idAsientoTren=(SELECT MIN(idAsientoTren) FROM AsientoTren WHERE idTren="+idTren+" AND estadoAT="+1+")"; 
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(ConsultaSQL);
+                while(rs.next())
+                {
+                    idAsiento = rs.getInt("idAsientoTren");
+                }
+
+                System.out.println("id AsientoTren >> " + idAsiento + " "+ idTren);
+        } catch (SQLException ex) {
+            System.out.println("Error en obtener Asiento Tren: " + ex);
+        }
+    }
+    
+    void modificarAsiento(){
+        
+        try {
+            String ConsultaSQL="UPDATE AsientoTren SET estadoAT="+2+" WHERE idTren="+idTren+" AND idAsientoTren="+idAsiento;
+            PreparedStatement pst = cn.prepareStatement(ConsultaSQL);
+            pst.executeUpdate();
+            
+            System.out.println("idTren >> " + idTren);
+        } catch (Exception e) {
+            System.out.println("ERROR seleccionar datos: "+e.getMessage());
+        }
+    }
+    
+    void ingresarPreVenta(){
+        String sql = "INSERT INTO PreVentaPasaje (cantidadPVP,fechaPVP) VALUES (?,?)";
+            try {
+                PreparedStatement pst  = cn.prepareStatement(sql);
+                pst.setString(1, "1");
+                
+                int anio = dateFechaSalida.getCalendar().get(Calendar.YEAR);
+                int dia = dateFechaSalida.getCalendar().get(Calendar.DAY_OF_MONTH);
+                int mes = dateFechaSalida.getCalendar().get(Calendar.MARCH)+1;
+                String fecha = anio+"-"+mes+"-"+dia;
+                
+                pst.setString(2, fecha);
+                
+
+                int n=pst.executeUpdate();
+                if(n>0){
+                JOptionPane.showMessageDialog(null, "Registro Guardado con Exito");
+                }
+            } catch (SQLException ex) {
+                System.out.println("Error al ingresar datos PRE VENTA PASAJE: " + ex);
+            }
+    }
+    
+    int idPreVentPasaje;
+    void obtenerPreVentaPasaje(){
+        String ConsultaSQL="SELECT idPreVentaPasaje FROM PreVentaPasaje WHERE idPreVentaPasaje = (SELECT MAX(idPreVentaPasaje) FROM PreVentaPasaje)"; 
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(ConsultaSQL);
+                while(rs.next())
+                {
+                    idPreVentPasaje = rs.getInt("idPreVentaPasaje");
+                }
+              
+              System.out.println("id PreVentaPasaje <<>> " + idPreVentPasaje);
+        } catch (SQLException ex) {
+            System.out.println("Error en obtener Pre Venta Pasaje: " + ex);
+        }
+    }
+    
+    int idRTren;
+    double preRuta;
+    double preTren;
+    void obtnerRutaTren(){
+        idRTren = cboRutas.getSelectedIndex();
+        
+        if(idDestino==2){
+            idRTren=4;
+        }
+        if(idDestino==3){
+            idRTren=7;
+        }
+        if(idDestino==4){
+            idRTren=8;
+        }
+        
+        String ConsultaSQL="SELECT costoRT FROM RutaTren WHERE idRutaTren="+idRTren; 
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(ConsultaSQL);
+                while(rs.next())
+                {
+                    preRuta = rs.getInt("costoRT");
+                }
+              
+              System.out.println("Precio Ruta Tren <<>> " + preRuta);
+        } catch (SQLException ex) {
+            System.out.println("Error en obtener Precio Ruta: " + ex);
+        }
+        
+        String ConsultaSQL2="SELECT precioAdicionalTren,horaSalidaInicio,horaLlegadaInicio FROM Tren WHERE idTren="+idTren; 
+        
+        try {
+                Statement st2 = cn.createStatement();
+                ResultSet rs2 = st2.executeQuery(ConsultaSQL2);
+                while(rs2.next())
+                {
+                    preTren = rs2.getInt("precioAdicionalTren");
+                    horaLlegada = rs2.getString("horaLlegadaInicio");
+                    horaSalida = rs2.getString("horaSalidaInicio");
+                }
+              
+                System.out.println("Precio Tren <<>> " + preTren);
+                System.out.println("Hora Llegada <<>> " + horaLlegada);
+                System.out.println("Hora Salida <<>> " + horaSalida);
+        } catch (SQLException ex) {
+            System.out.println("Error en obtener Precio Tren: " + ex);
+        }
+        
+        precioTotal = preRuta + preTren;
+        
+        System.out.println("Precio Total a Pagar =>> " + precioTotal);
+        
+        System.out.println("idRutaTren => " + idRTren);
+    }
+    
+    void ingresarFechaReserva(){
+        String sql = "INSERT INTO FechaReserva (fechaReserva,cantidadReserva,idAsientoTren,idRutaTren,idPreVentaPasaje) VALUES (?,?,?,?,?)";
+            try {
+                PreparedStatement pst  = cn.prepareStatement(sql);
+                
+                int anio = dateFechaSalida.getCalendar().get(Calendar.YEAR);
+                int dia = dateFechaSalida.getCalendar().get(Calendar.DAY_OF_MONTH);
+                int mes = dateFechaSalida.getCalendar().get(Calendar.MARCH)+1;
+                String fecha = anio+"-"+mes+"-"+dia;
+                
+                pst.setString(1, fecha);
+                pst.setString(2, "1");
+                pst.setString(3, ""+idAsiento);
+                pst.setString(4, ""+idRTren);
+                pst.setString(5, ""+idPreVentPasaje);
+                
+
+                int n=pst.executeUpdate();
+                if(n>0){
+                JOptionPane.showMessageDialog(null, "Registro Guardado con Exito");
+                }
+            } catch (SQLException ex) {
+                System.out.println("Error al ingresar datos FECHA DE RESERVA: " + ex);
+            }
+    }
+    
+    void obtenerFechaReserva(){
+        String ConsultaSQL="SELECT idFechaReserva FROM FechaReserva WHERE idFechaReserva = (SELECT MAX(idFechaReserva) FROM FechaReserva)"; 
+        
+        try {
+                Statement st = cn.createStatement();
+                ResultSet rs = st.executeQuery(ConsultaSQL);
+
+                while(rs.next())
+                {
+                    idFR = rs.getInt("idFechaReserva");
+                }
+
+                System.out.println("id FechaReserva <<>> " + idFR);
+        } catch (SQLException ex) {
+            System.out.println("Error en obtener FECHA RESERVA: " + ex);
         }
     }
     
@@ -142,12 +329,22 @@ public class abRutasTren extends javax.swing.JFrame {
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/tren.png"))); // NOI18N
 
         cboRutas.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        cboRutas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboRutasActionPerformed(evt);
+            }
+        });
 
         dateFechaSalida.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         btnBuscarTren.setBackground(new java.awt.Color(255, 204, 0));
         btnBuscarTren.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnBuscarTren.setText("BUSCAR TREN");
+        btnBuscarTren.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarTrenActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -216,13 +413,13 @@ public class abRutasTren extends javax.swing.JFrame {
         tblBuscarHora.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tblBuscarHora.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "NRO", "EMPRESA", "SALIDA", "LLEGADA", "PRECIO"
             }
         ));
         jScrollPane1.setViewportView(tblBuscarHora);
@@ -280,7 +477,13 @@ public class abRutasTren extends javax.swing.JFrame {
 
     private void btnSeleccionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarActionPerformed
         // TODO add your handling code here:
-        
+        ingresarPreVenta();
+        obtenerPreVentaPasaje();
+        obtenerAsientoTren();
+        modificarAsiento();
+        obtnerRutaTren();
+        ingresarFechaReserva();
+        obtenerFechaReserva();
         
         acDatosPasajero datPas = new acDatosPasajero();
         datPas.setVisible(true);
@@ -291,6 +494,16 @@ public class abRutasTren extends javax.swing.JFrame {
         // TODO add your handling code here:
         cargarComboRutaTren();
     }//GEN-LAST:event_cboDestinoActionPerformed
+
+    private void btnBuscarTrenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarTrenActionPerformed
+        // TODO add your handling code here:
+        cargar2();
+    }//GEN-LAST:event_btnBuscarTrenActionPerformed
+
+    private void cboRutasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboRutasActionPerformed
+        // TODO add your handling code here:
+        obtnerRutaTren();
+    }//GEN-LAST:event_cboRutasActionPerformed
 
     /**
      * @param args the command line arguments

@@ -34,12 +34,36 @@ public class aeRutasVerdes extends javax.swing.JFrame {
         //cargar2("");
     }
     
+    int diaaa;
+    
     void informeMetereologico(){
         try {
             Calendar fecha = new GregorianCalendar();
             int dia = fecha.get(Calendar.DAY_OF_WEEK)-1;
             
-            String ConsultaSQL="SELECT * FROM DiaTiempo WHERE idDiaTiempo ="+dia;
+            if(dia==0){
+                diaaa=7;
+            }
+            if(dia==1){
+                diaaa=1;
+            }
+            if(dia==2){
+                diaaa=2;
+            }
+            if(dia==3){
+                diaaa=3;
+            }
+            if(dia==4){
+                diaaa=4;
+            }
+            if(dia==5){
+                diaaa=5;
+            }
+            if(dia==6){
+                diaaa=6;
+            }
+            System.out.println("Dia: " + dia + " " + diaaa);
+            String ConsultaSQL="SELECT * FROM DiaTiempo WHERE idDiaTiempo ="+diaaa;
 
             Statement st = cn.createStatement();
             ResultSet rs = st.executeQuery(ConsultaSQL);                    
